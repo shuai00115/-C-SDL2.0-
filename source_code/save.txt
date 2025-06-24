@@ -1,0 +1,4 @@
+level1_completed=1
+level2_completed=1
+level3_completed=1
+level4_completed=1
