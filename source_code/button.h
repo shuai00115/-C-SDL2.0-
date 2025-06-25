@@ -5,6 +5,10 @@
 
 typedef enum{
 Button_None,
+Button_Confirm,
+Button_Cover,
+Button_Login,
+Button_Register,
 Button_Start,
 Button_Quit,
 Button_Level1,

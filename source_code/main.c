@@ -4,7 +4,9 @@
 #include "button.h"
 #include "Level_Selection.h"
 #include "Level_Switch.h"
-#include "save.h"
+#include "cover.h"
+#include "register.h"
+#include "login.h"
 
 App app;
 
@@ -61,6 +63,14 @@ int Init()
         return -1;
     }
 
+    if(Cover_Init() < 0)
+        return -1;
+    if(Register_Init() < 0)
+        return -1;
+    if(login_Init() < 0)
+        return -1;
+
+
     if (menu_Init() < 0)
         return -1;
 
@@ -88,7 +98,7 @@ int Init()
     
     
 
-    app.game_state = GAME_STATE_MENU;
+    app.game_state = GAME_STATE_COVER;
 
     return 0;
 }
@@ -97,6 +107,8 @@ void DeInit()
 {
     Level_Selection_Deinit();
     menu_Quit();
+    Cover_Free();
+    register_Free();
     Level_Switch_DeInit();
     SDL_DestroyRenderer(app.renderer);
     SDL_DestroyWindow(app.window);

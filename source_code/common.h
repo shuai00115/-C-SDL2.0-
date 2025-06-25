@@ -7,7 +7,15 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 
+#define MAX_USERNAME_LENGTH 50  // 用户名最大长度
+#define MAX_PASSWORD_LENGTH 50  // 密码最大长度
+#define W 1200
+#define H 600
+
 typedef enum{
+    GAME_STATE_COVER,
+    GAME_STATE_LOGIN,
+    GAME_STATE_REGISTER,
     GAME_STATE_MENU,
     GAME_STATE_LEVEL_SELECT,
     GAME_STATE_PLAYING_LEVEL1,
@@ -27,16 +35,6 @@ typedef enum{
 typedef void (*StateHandle)(SDL_Event*);
 
 
-
-typedef struct app{
-    SDL_Window* window;
-    SDL_Renderer* renderer;
-    Game_State game_state;
-} App;
-
-extern App app;
-
-
 typedef struct {
     int level1_completed;
     int level2_completed;
@@ -46,7 +44,29 @@ typedef struct {
 
 extern SaveData saveData;
 
-#define W 1200
-#define H 600
+
+
+typedef struct{
+    char username[MAX_USERNAME_LENGTH];
+    char password[MAX_PASSWORD_LENGTH];
+    SaveData saveData;
+}UserData;
+
+extern UserData currentUser;
+
+typedef struct {
+    SDL_Rect rect;
+    char text[MAX_USERNAME_LENGTH];
+    int length;
+    int isFocused;
+} InputBox;
+
+typedef struct app{
+    SDL_Window* window;
+    SDL_Renderer* renderer;
+    Game_State game_state;
+} App;
+
+extern App app;
 
 #endif

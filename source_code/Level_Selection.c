@@ -1,6 +1,5 @@
 #include "common.h"
 #include "Level_Selection.h"
-#include "save.h"
 
 Button button_Back,button_Level1,button_Level2,button_Level3,button_Level4;
 
@@ -9,8 +8,6 @@ TTF_Font* font_SelectionOption = NULL;
 
 int Level_Selection_Init()
 {
-    LoadGame(); // 加载存档数据
-
     font_SelectionTitle = TTF_OpenFont("../material/STXINWEI.TTF", 40);
     if(font_SelectionTitle == NULL)
     {
@@ -104,7 +101,7 @@ void Level_Selection_Draw(void)
     RenderButton(&button_Level1, font_SelectionOption);
 
     // 第二关
-    if (saveData.level1_completed)
+    if (currentUser.saveData.level1_completed)
     {
         button_Level2.normalColor = (SDL_Color){255, 255, 255, 255};
     }
@@ -115,7 +112,7 @@ void Level_Selection_Draw(void)
     RenderButton(&button_Level2, font_SelectionOption);
 
     // 第三关
-    if (saveData.level2_completed)
+    if (currentUser.saveData.level2_completed)
     {
         button_Level3.normalColor = (SDL_Color){255, 255, 255, 255};
     }
@@ -126,7 +123,7 @@ void Level_Selection_Draw(void)
     RenderButton(&button_Level3, font_SelectionOption);
 
     // 第四关
-    if (saveData.level3_completed)
+    if (currentUser.saveData.level3_completed)
     {
         button_Level4.normalColor = (SDL_Color){255, 255, 255, 255};
     }
@@ -154,7 +151,7 @@ ButtonType Level_Selection_GetButtonClicked(SDL_Event *event)
     // 检查关卡是否解锁
     if (isButtonClicked(&button_Level2, event))
     {
-        if (saveData.level1_completed)
+        if (currentUser.saveData.level1_completed)
         {
             return Button_Level2;
         }
@@ -162,7 +159,7 @@ ButtonType Level_Selection_GetButtonClicked(SDL_Event *event)
 
     if (isButtonClicked(&button_Level3, event))
     {
-        if (saveData.level2_completed)
+        if (currentUser.saveData.level2_completed)
         {
             return Button_Level3;
         }
@@ -170,7 +167,7 @@ ButtonType Level_Selection_GetButtonClicked(SDL_Event *event)
 
     if (isButtonClicked(&button_Level4, event))
     {
-        if (saveData.level3_completed)
+        if (currentUser.saveData.level3_completed)
         {
             return Button_Level4;
         }

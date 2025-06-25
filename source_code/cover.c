@@ -1,12 +1,12 @@
-#include "menu.h"
-
-static Button button_Start, button_Quit;
+#include "cover.h"
 
 
-TTF_Font* font_MenuTitle = NULL;
-TTF_Font* font_MenuOption = NULL;
+TTF_Font* font_CoverOption = NULL;
+TTF_Font* font_CoverTitle = NULL;
 
-int menu_Init()
+Button button_Login,button_Register;
+
+int Cover_Init() 
 {
     if(TTF_Init()<0)
     {
@@ -14,30 +14,28 @@ int menu_Init()
         return -1;
     }
      //打开字体，设置大小
-    font_MenuOption = TTF_OpenFont("../material/STXINWEI.TTF", 40);
-    if(font_MenuOption == NULL)
+    font_CoverOption = TTF_OpenFont("../material/STXINWEI.TTF", 40);
+    if(font_CoverOption == NULL)
     {
         SDL_Log("Failed to load font! SDL_Error: %s\n", TTF_GetError());
         return -1;
     }
-    font_MenuTitle = TTF_OpenFont("../material/STXINWEI.TTF", 60);
-    if(font_MenuTitle == NULL)
+    font_CoverTitle = TTF_OpenFont("../material/STXINWEI.TTF", 60);
+    if(font_CoverTitle == NULL)
     {
         SDL_Log("Failed to load font! SDL_Error: %s\n", TTF_GetError());
         return -1;
     }
     //初始化按钮
-    ButtonInit(&button_Start,(W-200)/2,H/2-60,200,50,"Start");
-    button_Start.type = Button_Start;
-    ButtonInit(&button_Quit,(W-200)/2,H/2+40,200,50,"Quit");
-    button_Quit.type = Button_Quit;
+    ButtonInit(&button_Login,(W-200)/2,H/2-60,200,50,"Login");
+    button_Login.type = Button_Login;
+    ButtonInit(&button_Register,(W-200)/2,H/2+40,200,50,"Register");
+    button_Register.type = Button_Register;
     return 0;
 }
 
-void RenderMenuBackground()
-{
-
-    //加载背景图片
+void renderCoverBackground()
+{   //加载背景图片
     SDL_Surface* background_Surface = SDL_LoadBMP("../material/background1.bmp");
     if(background_Surface == NULL)
     {
@@ -61,9 +59,9 @@ void RenderMenuBackground()
     SDL_FreeSurface(background_Surface);
 }
 
-void RenderMenuTitle()
+void renderCoverTitle()
 {
-    SDL_Surface* title = TTF_RenderText_Blended(font_MenuTitle, "Brawl Game", (SDL_Color){255, 255, 255, 255});
+    SDL_Surface* title = TTF_RenderText_Blended(font_CoverTitle, "Brawl Game", (SDL_Color){255, 255, 255, 255});
     if(title == NULL)
     {
         SDL_Log("Failed to render title! SDL_Error: %s\n", TTF_GetError());
@@ -84,31 +82,27 @@ void RenderMenuTitle()
     SDL_FreeSurface(title);
 }
 
-void menu_Draw()
-{ 
-    //渲染背景
-   RenderMenuBackground();
-    //渲染标题
-    RenderMenuTitle();
-   //渲染按钮
-   RenderButton(&button_Start,font_MenuOption);
-   RenderButton(&button_Quit,font_MenuOption);
-    //显示渲染器内容
+void cover_Draw()
+{
+    renderCoverBackground();
+    renderCoverTitle();
+
+    RenderButton(&button_Login, font_CoverOption);
+    RenderButton(&button_Register, font_CoverOption);
+
     SDL_RenderPresent(app.renderer);
- 
 }
 
-ButtonType menu_GetButtonClicked(SDL_Event* event)
+ButtonType cover_GetButtonClicked(SDL_Event* event)
 {
     if(!event) return Button_None;
-    if(isButtonClicked(&button_Start, event)) return button_Start.type;
-    if(isButtonClicked(&button_Quit, event)) return button_Quit.type;
+    if(isButtonClicked(&button_Login, event)) return Button_Login;
+    if(isButtonClicked(&button_Register, event)) return Button_Register;
     return Button_None;
 }
 
-void menu_Quit()
+void Cover_Free()
 {
-    //销毁
-    TTF_CloseFont(font_MenuOption);
-    TTF_CloseFont(font_MenuTitle);
+    TTF_CloseFont(font_CoverOption);
+    TTF_CloseFont(font_CoverTitle);
 }

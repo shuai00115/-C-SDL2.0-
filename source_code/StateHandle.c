@@ -1,45 +1,203 @@
 #include "StateHandle.h"
-#include "menu.h"
-#include "button.h"
-#include "Level_Selection.h"
-#include "Level_Switch.h"
-#include "level.h"
-#include "save.h"
 
 
-void MenuStateHandle(SDL_Event* event)
+UserData currentUser; // 当前用户信息
+
+void CoverStateHandle(SDL_Event* event)
 {
-            //如果游戏状态是菜单状态
-            if (app.game_state == GAME_STATE_MENU)
-            {
-                //检测主菜单按钮点击
-                ButtonType Clicked = menu_GetButtonClicked(event);
-                switch (Clicked)
-                {
-                case Button_None:
-                    break;
-                //如果点击了“Start”按钮，进入关卡选择界面
-                case Button_Start:
-                    app.game_state = GAME_STATE_LEVEL_SELECT;
-                    break;
-                //如果点击了“Quit”按钮，退出程序
-                case Button_Quit:
-                    Level_Selection_Deinit();
-                    menu_Quit();
-                    Level_Switch_DeInit();
-                    SDL_DestroyRenderer(app.renderer);
-                    SDL_DestroyWindow(app.window);
-                    SDL_Quit();
-                    exit(0);
+    ButtonType clicked = cover_GetButtonClicked(event);
+    switch (clicked)
+    {
+    case Button_None:
+        break;
+    case Button_Login:
+        app.game_state = GAME_STATE_LOGIN;
+        break;
+    case Button_Register:
+        app.game_state = GAME_STATE_REGISTER;
+        break;
+    default:
+        break;
+    }
+    SDL_RenderClear(app.renderer);   // 清屏
+    cover_Draw();                    // 渲染菜单界面
+    SDL_RenderPresent(app.renderer); // 显示
+    SDL_Delay(16);
+}
 
-                default:
-                    break;
-                }
-                SDL_RenderClear(app.renderer); // 清屏
-                menu_Draw();//渲染菜单界面
-                SDL_RenderPresent(app.renderer); // 显示
-                SDL_Delay(16);
-            }
+void LoginStateHandle(SDL_Event* event)
+{
+    if (event->type == SDL_MOUSEBUTTONDOWN) {
+        int x, y;
+        SDL_GetMouseState(&x, &y);
+        
+        // 检查用户名输入框是否被点击
+        if (x >= usernameInputBox.rect.x && x <= usernameInputBox.rect.x + usernameInputBox.rect.w &&
+            y >= usernameInputBox.rect.y && y <= usernameInputBox.rect.y + usernameInputBox.rect.h) {
+            currentFocus = 1;
+        }
+        // 检查密码输入框是否被点击
+        else if (x >= passwordInputBox.rect.x && x <= passwordInputBox.rect.x + passwordInputBox.rect.w &&
+                 y >= passwordInputBox.rect.y && y <= passwordInputBox.rect.y + passwordInputBox.rect.h) {
+            currentFocus = 2;
+        }
+        else {
+            currentFocus = 0; // 点击其他区域，取消焦点
+        }
+        
+        // 更新输入框焦点状态
+        usernameInputBox.isFocused = (currentFocus == 1);
+        passwordInputBox.isFocused = (currentFocus == 2);
+    }
+
+    // 只处理当前有焦点的输入框
+    if (event->type == SDL_KEYDOWN) {
+        if (currentFocus == 1) {
+            handleInputBox(event, &usernameInputBox);
+        } else if (currentFocus == 2) {
+            handleInputBox(event, &passwordInputBox);
+        }
+    }
+
+    ButtonType clicked = login_GetButtonClicked(event);
+    switch (clicked)
+    {
+    case Button_None:
+        break;
+    case Button_Confirm:
+        // 处理登录逻辑
+        UserData user;
+        strcpy(user.username, usernameInputBox.text);
+        strcpy(user.password, passwordInputBox.text);
+        if (isUserValid(&user)) {
+        // 登录成功
+        loadUserData(&user); // 将用户历史数据加载到内存
+        currentUser = user; // 保存当前用户信息
+        app.game_state = GAME_STATE_LEVEL_SELECT;
+    } else {
+            // 登录失败
+            loginFail_Draw();
+            SDL_Delay(2000);
+            app.game_state = GAME_STATE_LOGIN;
+        }
+        break;
+    case Button_Back:
+        app.game_state = GAME_STATE_COVER;
+        break;
+    default:
+        break;
+    }
+
+    
+    SDL_RenderClear(app.renderer);   // 清屏
+    login_Draw();                    // 渲染登录界面
+    SDL_RenderPresent(app.renderer); // 显示
+    SDL_Delay(16);
+}
+
+void RegisterStateHandle(SDL_Event* event)
+{
+    if (event->type == SDL_MOUSEBUTTONDOWN) {
+        int x, y;
+        SDL_GetMouseState(&x, &y);
+
+        // 检查用户名输入框是否被点击
+        if (x >= usernameInputBoxRegister.rect.x && x <= usernameInputBoxRegister.rect.x + usernameInputBoxRegister.rect.w &&
+            y >= usernameInputBoxRegister.rect.y && y <= usernameInputBoxRegister.rect.y + usernameInputBoxRegister.rect.h) {
+            currentFocusRegister = 1;
+        }
+        // 检查密码输入框是否被点击
+        else if (x >= passwordInputBoxRegister.rect.x && x <= passwordInputBoxRegister.rect.x + passwordInputBoxRegister.rect.w &&
+                 y >= passwordInputBoxRegister.rect.y && y <= passwordInputBoxRegister.rect.y + passwordInputBoxRegister.rect.h) {
+            currentFocusRegister = 2;
+        }
+        else {
+            currentFocusRegister = 0; // 点击其他区域，取消焦点
+        }
+
+        // 更新输入框焦点状态
+        usernameInputBoxRegister.isFocused = (currentFocusRegister == 1);
+        passwordInputBoxRegister.isFocused = (currentFocusRegister == 2);
+    }
+
+    // 只处理当前有焦点的输入框
+    if (event->type == SDL_KEYDOWN) {
+        if (currentFocusRegister == 1) {
+            handleRegisterInputBox(event, &usernameInputBoxRegister);
+        } else if (currentFocusRegister == 2) {
+            handleRegisterInputBox(event, &passwordInputBoxRegister);
+        }
+    }
+
+    ButtonType clicked = register_GetButtonClicked(event);
+    switch (clicked)
+    {
+    case Button_None:
+        break;
+    case Button_Confirm:
+        // 处理注册逻辑
+        UserData user;
+        strcpy(user.username, usernameInputBoxRegister.text);
+        strcpy(user.password, passwordInputBoxRegister.text);
+        // 初始化通关状态
+        user.saveData.level1_completed = 0;
+        user.saveData.level2_completed = 0;
+        user.saveData.level3_completed = 0;
+        user.saveData.level4_completed = 0;
+
+        if (registerUser(&user) == 0) {
+            // 注册成功
+        currentUser = user; // 保存当前用户信息
+        app.game_state = GAME_STATE_LEVEL_SELECT;
+            app.game_state = GAME_STATE_LEVEL_SELECT;
+        } else {
+            // 注册失败
+            registerFail_Draw();
+            SDL_Delay(2000);
+            app.game_state = GAME_STATE_REGISTER;
+        }
+        break;
+    case Button_Back:
+        app.game_state = GAME_STATE_COVER;
+        break;
+    default:
+        break;
+    }
+    SDL_RenderClear(app.renderer);   // 清屏
+    register_Draw();                    // 渲染注册界面
+    SDL_RenderPresent(app.renderer); // 显示
+    SDL_Delay(16);
+}
+
+void MenuStateHandle(SDL_Event *event)
+{
+    // 检测主菜单按钮点击
+    ButtonType Clicked = menu_GetButtonClicked(event);
+    switch (Clicked)
+    {
+    case Button_None:
+        break;
+    // 如果点击了“Start”按钮，进入关卡选择界面
+    case Button_Start:
+        app.game_state = GAME_STATE_LEVEL_SELECT;
+        break;
+    // 如果点击了“Quit”按钮，退出程序
+    case Button_Quit:
+        Level_Selection_Deinit();
+        menu_Quit();
+        Level_Switch_DeInit();
+        SDL_DestroyRenderer(app.renderer);
+        SDL_DestroyWindow(app.window);
+        SDL_Quit();
+        exit(0);
+
+    default:
+        break;
+    }
+    SDL_RenderClear(app.renderer);   // 清屏
+    menu_Draw();                     // 渲染菜单界面
+    SDL_RenderPresent(app.renderer); // 显示
+    SDL_Delay(16);
 }
 
 void LevelSelectStateHandle(SDL_Event* event)
@@ -83,8 +241,8 @@ void level1StateHandle(SDL_Event* event)
 
         if (result == 1)
         {                                             // 通关
-            saveData.level1_completed = 1; // 标记第一关已完成
-            SaveGame(); // 保存进度
+            currentUser.saveData.level1_completed = 1; // 更新当前用户的通关状态
+            saveUserData(&currentUser); // 保存用户数据
             app.game_state = GAME_STATE_LEVEL1SWITCH; // 跳转到通关界面
         }
         else if (result == -1)
@@ -123,8 +281,8 @@ void level2StateHandle(SDL_Event* event)
         int result = loop2();//关卡2逻辑
     if (result == 1)
     {                                             // 通关
-        saveData.level2_completed = 1;
-        SaveGame();
+        currentUser.saveData.level2_completed = 1; // 更新当前用户的通关状态
+        saveUserData(&currentUser); // 保存用户数据
         app.game_state = GAME_STATE_LEVEL2SWITCH; // 跳转到通关界面
     }
     else if (result == -1)
@@ -164,8 +322,8 @@ void level3StateHandle(SDL_Event* event)
         int result = loop3();//关卡3逻辑
     if (result == 1)
     {                                             // 通关
-        saveData.level3_completed = 1;
-        SaveGame();
+        currentUser.saveData.level3_completed = 1; // 更新当前用户的通关状态
+        saveUserData(&currentUser); // 保存用户数据
         app.game_state = GAME_STATE_LEVEL3SWITCH; // 跳转到通关界面
     }
     else if (result == -1)
@@ -204,8 +362,8 @@ void level4StateHandle(SDL_Event* event)
         int result = loop4();//关卡4逻辑
     if (result == 1)
     {                                             // 通关
-        saveData.level4_completed = 1;
-        SaveGame();
+        currentUser.saveData.level4_completed = 1; // 更新当前用户的通关状态
+        saveUserData(&currentUser); // 保存用户数据
         app.game_state = GAME_STATE_LEVEL4SWITCH; // 跳转到通关界面
     }
     else if (result == -1)
@@ -297,18 +455,21 @@ void level4FailStateHandle(SDL_Event* event) {
 
 
 StateHandle stateHandle[] = {
-    MenuStateHandle,              // 0: GAME_STATE_MENU
-    LevelSelectStateHandle,       // 1: GAME_STATE_LEVEL_SELECT
-    level1StateHandle,            // 2: GAME_STATE_PLAYING_LEVEL1
-    level2StateHandle,            // 3: GAME_STATE_PLAYING_LEVEL2
-    level3StateHandle,            // 4: GAME_STATE_PLAYING_LEVEL3
-    level4StateHandle,            // 5: GAME_STATE_PLAYING_LEVEL4
-    level1StateHandle,            // 6: GAME_STATE_LEVEL1SWITCH
-    level2StateHandle,            // 7: GAME_STATE_LEVEL2SWITCH
-    level3StateHandle,            // 8: GAME_STATE_LEVEL3SWITCH
-    level4StateHandle,            // 9: GAME_STATE_LEVEL4SWITCH
-    level1FailStateHandle,        // 10: GAME_STATE_LEVEL1FAIL
-    level2FailStateHandle,        // 11: GAME_STATE_LEVEL2FAIL
-    level3FailStateHandle,        // 12: GAME_STATE_LEVEL3FAIL
-    level4FailStateHandle         // 13: GAME_STATE_LEVEL4FAIL
+    CoverStateHandle,             // 0: GAME_STATE_COVER
+    LoginStateHandle,             // 1: GAME_STATE_LOGIN
+    RegisterStateHandle,          // 2: GAME_STATE_REGISTER
+    MenuStateHandle,              // 3: GAME_STATE_MENU
+    LevelSelectStateHandle,       // 4: GAME_STATE_LEVEL_SELECT
+    level1StateHandle,            // 5: GAME_STATE_PLAYING_LEVEL1
+    level2StateHandle,            // 6: GAME_STATE_PLAYING_LEVEL2
+    level3StateHandle,            // 7: GAME_STATE_PLAYING_LEVEL3
+    level4StateHandle,            // 8: GAME_STATE_PLAYING_LEVEL4
+    level1StateHandle,            // 9: GAME_STATE_LEVEL1SWITCH
+    level2StateHandle,            // 10: GAME_STATE_LEVEL2SWITCH
+    level3StateHandle,            // 11: GAME_STATE_LEVEL3SWITCH
+    level4StateHandle,            // 12: GAME_STATE_LEVEL4SWITCH
+    level1FailStateHandle,        // 13: GAME_STATE_LEVEL1FAIL
+    level2FailStateHandle,        // 14: GAME_STATE_LEVEL2FAIL
+    level3FailStateHandle,        // 15: GAME_STATE_LEVEL3FAIL
+    level4FailStateHandle         // 16: GAME_STATE_LEVEL4FAIL
 };
