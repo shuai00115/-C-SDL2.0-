@@ -142,16 +142,27 @@ void renderloginOption(char* option, int x, int y)
     SDL_FreeSurface(option_Surface);
 }
 
-void handleInputBox(SDL_Event* event, InputBox* inputBox)
+void handleInputBox(SDL_Event *event, InputBox *inputBox)
 {
-    if (event->type == SDL_KEYDOWN) {
-        if (event->key.keysym.sym == SDLK_BACKSPACE && inputBox->length > 0) {
+    if (event->type == SDL_KEYDOWN)
+    {
+        // 如果事件类型是按键按下
+        if (event->key.keysym.sym == SDLK_BACKSPACE && inputBox->length > 0)
+        {
+            // 如果按键是退格键并且输入框中有文本，则删除最后一个字符
             inputBox->text[--inputBox->length] = '\0';
-        } else if (event->key.keysym.sym == SDLK_RETURN) {
+        }
+        else if (event->key.keysym.sym == SDLK_RETURN)
+        {
             // 处理回车事件
-        } else if (inputBox->length < MAX_USERNAME_LENGTH - 1) {
+        }
+        else if (inputBox->length < MAX_USERNAME_LENGTH - 1)
+        {
+            // 如果输入框长度小于最大长度减一，则处理字符输入
             char c = (char)event->key.keysym.sym;
-            if (isalnum(c)) {
+            if (isalnum(c))
+            {
+                // 如果输入的字符是字母或数字，则添加到输入框文本中
                 inputBox->text[inputBox->length++] = c;
                 inputBox->text[inputBox->length] = '\0';
             }

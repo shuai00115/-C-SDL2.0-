@@ -1,6 +1,7 @@
 #include "StateHandle.h"
 
 
+
 UserData currentUser; // 当前用户信息
 
 void CoverStateHandle(SDL_Event* event)
@@ -73,7 +74,7 @@ void LoginStateHandle(SDL_Event* event)
         // 登录成功
         loadUserData(&user); // 将用户历史数据加载到内存
         currentUser = user; // 保存当前用户信息
-        app.game_state = GAME_STATE_LEVEL_SELECT;
+        app.game_state = GAME_STATE_MENU;
     } else {
             // 登录失败
             loginFail_Draw();
@@ -144,12 +145,12 @@ void RegisterStateHandle(SDL_Event* event)
         user.saveData.level2_completed = 0;
         user.saveData.level3_completed = 0;
         user.saveData.level4_completed = 0;
+        user.saveData.score = 0;
 
         if (registerUser(&user) == 0) {
             // 注册成功
         currentUser = user; // 保存当前用户信息
-        app.game_state = GAME_STATE_LEVEL_SELECT;
-            app.game_state = GAME_STATE_LEVEL_SELECT;
+        app.game_state = GAME_STATE_MENU;
         } else {
             // 注册失败
             registerFail_Draw();
@@ -190,7 +191,10 @@ void MenuStateHandle(SDL_Event *event)
         SDL_DestroyWindow(app.window);
         SDL_Quit();
         exit(0);
-
+        break;
+    case Button_Ranking:
+        app.game_state = GAME_STATE_RANKING;
+        break;
     default:
         break;
     }
@@ -198,6 +202,26 @@ void MenuStateHandle(SDL_Event *event)
     menu_Draw();                     // 渲染菜单界面
     SDL_RenderPresent(app.renderer); // 显示
     SDL_Delay(16);
+}
+
+void RankingStateHandle(SDL_Event* event)
+{
+    ButtonType clicked = ranking_GetbuttonClicked(event);
+    switch(clicked)
+    {
+        case Button_None:
+            break;
+        case Button_Back:
+            app.game_state = GAME_STATE_MENU;
+            break;
+        default:
+            break;
+    }
+    SDL_RenderClear(app.renderer);   // 清屏
+    Ranking_Draw();                    // 渲染排行榜界面
+    SDL_RenderPresent(app.renderer); // 显示
+    SDL_Delay(16);
+
 }
 
 void LevelSelectStateHandle(SDL_Event* event)
@@ -242,7 +266,9 @@ void level1StateHandle(SDL_Event* event)
         if (result == 1)
         {                                             // 通关
             currentUser.saveData.level1_completed = 1; // 更新当前用户的通关状态
+            currentUser.saveData.score += 50; // 通关关卡加50分
             saveUserData(&currentUser); // 保存用户数据
+            updateRankingList(&rankingList); // 更新排行榜链表
             app.game_state = GAME_STATE_LEVEL1SWITCH; // 跳转到通关界面
         }
         else if (result == -1)
@@ -282,7 +308,9 @@ void level2StateHandle(SDL_Event* event)
     if (result == 1)
     {                                             // 通关
         currentUser.saveData.level2_completed = 1; // 更新当前用户的通关状态
+        currentUser.saveData.score += 100; // 通关关卡加100分
         saveUserData(&currentUser); // 保存用户数据
+        updateRankingList(&rankingList); // 更新排行榜链表
         app.game_state = GAME_STATE_LEVEL2SWITCH; // 跳转到通关界面
     }
     else if (result == -1)
@@ -323,7 +351,9 @@ void level3StateHandle(SDL_Event* event)
     if (result == 1)
     {                                             // 通关
         currentUser.saveData.level3_completed = 1; // 更新当前用户的通关状态
+        currentUser.saveData.score += 200; // 通关关卡加200分
         saveUserData(&currentUser); // 保存用户数据
+        updateRankingList(&rankingList); // 更新排行榜链表
         app.game_state = GAME_STATE_LEVEL3SWITCH; // 跳转到通关界面
     }
     else if (result == -1)
@@ -363,7 +393,9 @@ void level4StateHandle(SDL_Event* event)
     if (result == 1)
     {                                             // 通关
         currentUser.saveData.level4_completed = 1; // 更新当前用户的通关状态
+        currentUser.saveData.score += 400; // 通关关卡加400分
         saveUserData(&currentUser); // 保存用户数据
+        updateRankingList(&rankingList); // 更新排行榜链表
         app.game_state = GAME_STATE_LEVEL4SWITCH; // 跳转到通关界面
     }
     else if (result == -1)
@@ -459,17 +491,18 @@ StateHandle stateHandle[] = {
     LoginStateHandle,             // 1: GAME_STATE_LOGIN
     RegisterStateHandle,          // 2: GAME_STATE_REGISTER
     MenuStateHandle,              // 3: GAME_STATE_MENU
-    LevelSelectStateHandle,       // 4: GAME_STATE_LEVEL_SELECT
-    level1StateHandle,            // 5: GAME_STATE_PLAYING_LEVEL1
-    level2StateHandle,            // 6: GAME_STATE_PLAYING_LEVEL2
-    level3StateHandle,            // 7: GAME_STATE_PLAYING_LEVEL3
-    level4StateHandle,            // 8: GAME_STATE_PLAYING_LEVEL4
-    level1StateHandle,            // 9: GAME_STATE_LEVEL1SWITCH
-    level2StateHandle,            // 10: GAME_STATE_LEVEL2SWITCH
-    level3StateHandle,            // 11: GAME_STATE_LEVEL3SWITCH
-    level4StateHandle,            // 12: GAME_STATE_LEVEL4SWITCH
-    level1FailStateHandle,        // 13: GAME_STATE_LEVEL1FAIL
-    level2FailStateHandle,        // 14: GAME_STATE_LEVEL2FAIL
-    level3FailStateHandle,        // 15: GAME_STATE_LEVEL3FAIL
-    level4FailStateHandle         // 16: GAME_STATE_LEVEL4FAIL
+    RankingStateHandle,           // 4: GAME_STATE_RANKING
+    LevelSelectStateHandle,       // 5: GAME_STATE_LEVEL_SELECT
+    level1StateHandle,            // 6: GAME_STATE_PLAYING_LEVEL1
+    level2StateHandle,            // 7: GAME_STATE_PLAYING_LEVEL2
+    level3StateHandle,            // 8: GAME_STATE_PLAYING_LEVEL3
+    level4StateHandle,            // 9: GAME_STATE_PLAYING_LEVEL4
+    level1StateHandle,            // 10: GAME_STATE_LEVEL1SWITCH
+    level2StateHandle,            // 11: GAME_STATE_LEVEL2SWITCH
+    level3StateHandle,            // 12: GAME_STATE_LEVEL3SWITCH
+    level4StateHandle,            // 13: GAME_STATE_LEVEL4SWITCH
+    level1FailStateHandle,        // 14: GAME_STATE_LEVEL1FAIL
+    level2FailStateHandle,        // 15: GAME_STATE_LEVEL2FAIL
+    level3FailStateHandle,        // 16: GAME_STATE_LEVEL3FAIL
+    level4FailStateHandle         // 17: GAME_STATE_LEVEL4FAIL
 };

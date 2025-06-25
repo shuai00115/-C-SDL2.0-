@@ -1,6 +1,6 @@
 #include "menu.h"
 
-static Button button_Start, button_Quit;
+static Button button_Start, button_Quit,button_Ranking;
 
 
 TTF_Font* font_MenuTitle = NULL;
@@ -27,10 +27,13 @@ int menu_Init()
         return -1;
     }
     //初始化按钮
-    ButtonInit(&button_Start,(W-200)/2,H/2-60,200,50,"Start");
+    ButtonInit(&button_Start,(W-200)/2,265,200,50,"Start");
     button_Start.type = Button_Start;
-    ButtonInit(&button_Quit,(W-200)/2,H/2+40,200,50,"Quit");
+    ButtonInit(&button_Ranking,(W-200)/2,325,200,50,"Ranking");
+    button_Ranking.type = Button_Ranking;
+    ButtonInit(&button_Quit,(W-200)/2,385,200,50,"Quit");
     button_Quit.type = Button_Quit;
+    
     return 0;
 }
 
@@ -93,6 +96,7 @@ void menu_Draw()
    //渲染按钮
    RenderButton(&button_Start,font_MenuOption);
    RenderButton(&button_Quit,font_MenuOption);
+   RenderButton(&button_Ranking,font_MenuOption);
     //显示渲染器内容
     SDL_RenderPresent(app.renderer);
  
@@ -103,6 +107,7 @@ ButtonType menu_GetButtonClicked(SDL_Event* event)
     if(!event) return Button_None;
     if(isButtonClicked(&button_Start, event)) return button_Start.type;
     if(isButtonClicked(&button_Quit, event)) return button_Quit.type;
+    if(isButtonClicked(&button_Ranking, event)) return button_Ranking.type;
     return Button_None;
 }
 

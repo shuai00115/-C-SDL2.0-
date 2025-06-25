@@ -17,6 +17,7 @@ typedef enum{
     GAME_STATE_LOGIN,
     GAME_STATE_REGISTER,
     GAME_STATE_MENU,
+    GAME_STATE_RANKING,
     GAME_STATE_LEVEL_SELECT,
     GAME_STATE_PLAYING_LEVEL1,
     GAME_STATE_PLAYING_LEVEL2,
@@ -40,6 +41,7 @@ typedef struct {
     int level2_completed;
     int level3_completed;
     int level4_completed;
+    int score; // 添加分数字段
 } SaveData;
 
 extern SaveData saveData;

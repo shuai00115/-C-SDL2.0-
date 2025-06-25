@@ -16,6 +16,7 @@ Button_Level2,
 Button_Level3,
 Button_Level4,
 Button_Back,
+Button_Ranking
 }ButtonType;
 
 typedef struct {

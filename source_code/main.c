@@ -69,6 +69,8 @@ int Init()
         return -1;
     if(login_Init() < 0)
         return -1;
+    if(Ranking_Init() < 0)
+        return -1;
 
 
     if (menu_Init() < 0)
@@ -109,6 +111,8 @@ void DeInit()
     menu_Quit();
     Cover_Free();
     register_Free();
+    Ranking_Cleanup();
+    login_Free();
     Level_Switch_DeInit();
     SDL_DestroyRenderer(app.renderer);
     SDL_DestroyWindow(app.window);
