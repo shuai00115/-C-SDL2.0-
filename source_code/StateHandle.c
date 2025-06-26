@@ -1,6 +1,7 @@
 #include "StateHandle.h"
 
 
+extern ScoreNode* rankingList;
 
 UserData currentUser; // 当前用户信息
 
@@ -193,6 +194,7 @@ void MenuStateHandle(SDL_Event *event)
         exit(0);
         break;
     case Button_Ranking:
+        updateRankingList(&rankingList); // 更新排行榜数据
         app.game_state = GAME_STATE_RANKING;
         break;
     default:
@@ -268,7 +270,6 @@ void level1StateHandle(SDL_Event* event)
             currentUser.saveData.level1_completed = 1; // 更新当前用户的通关状态
             currentUser.saveData.score += 50; // 通关关卡加50分
             saveUserData(&currentUser); // 保存用户数据
-            updateRankingList(&rankingList); // 更新排行榜链表
             app.game_state = GAME_STATE_LEVEL1SWITCH; // 跳转到通关界面
         }
         else if (result == -1)
@@ -310,7 +311,6 @@ void level2StateHandle(SDL_Event* event)
         currentUser.saveData.level2_completed = 1; // 更新当前用户的通关状态
         currentUser.saveData.score += 100; // 通关关卡加100分
         saveUserData(&currentUser); // 保存用户数据
-        updateRankingList(&rankingList); // 更新排行榜链表
         app.game_state = GAME_STATE_LEVEL2SWITCH; // 跳转到通关界面
     }
     else if (result == -1)
@@ -353,7 +353,6 @@ void level3StateHandle(SDL_Event* event)
         currentUser.saveData.level3_completed = 1; // 更新当前用户的通关状态
         currentUser.saveData.score += 200; // 通关关卡加200分
         saveUserData(&currentUser); // 保存用户数据
-        updateRankingList(&rankingList); // 更新排行榜链表
         app.game_state = GAME_STATE_LEVEL3SWITCH; // 跳转到通关界面
     }
     else if (result == -1)
@@ -395,7 +394,6 @@ void level4StateHandle(SDL_Event* event)
         currentUser.saveData.level4_completed = 1; // 更新当前用户的通关状态
         currentUser.saveData.score += 400; // 通关关卡加400分
         saveUserData(&currentUser); // 保存用户数据
-        updateRankingList(&rankingList); // 更新排行榜链表
         app.game_state = GAME_STATE_LEVEL4SWITCH; // 跳转到通关界面
     }
     else if (result == -1)
